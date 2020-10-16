@@ -37,10 +37,72 @@ router.post("/", async (req, res, next) => {
 router.get("/", async (req, res, next) => {
 	try {
 		const data = JSON.parse(await readFile(global.fileName));
-		//console.log(data);
 		delete data.nextId;
 		res.send(data);
 		global.logger.info("GET /grade");
+	} catch (err) {
+		next(err);
+	}
+});
+
+router.get("/totalgrade", async (req, res, next) => {
+	try {
+		const student = req.query.student;
+		const subject = req.query.subject;
+		const data = JSON.parse(await readFile(global.fileName));
+
+		let total = data.grades.reduce((accumulator, grade) => {
+			if (grade.student === student && grade.subject === subject)
+				return accumulator += grade.value;
+			else
+				return accumulator;
+		}, 0);
+		res.send("Nota total: " + total);
+		global.logger.info("GET /nota/totalgrade");
+	} catch (err) {
+		next(err);
+	}
+});
+
+router.get("/media", async (req,res,next) => {
+	try {
+		const subject = req.query.subject;
+		const type = req.query.type;
+		const data = JSON.parse(await readFile(global.fileName));
+		let total = 0;
+		let acumula = data.grades.reduce((accumulator, grade) => {
+			if (grade.subject === subject && grade.type === type)
+			{
+				total++;
+				return accumulator += grade.value;
+			}
+			else
+				return accumulator;
+		}, 0);
+		let media = acumula / total;
+		res.send("Média: " + media);
+		global.logger.info("GET /nota/media")
+	} catch (err) {
+		next(err);
+	}
+});
+
+router.get("/bestgrades", async (req,res,next) => {
+	try {
+		const subject = req.query.subject;
+		const type = req.query.type;
+		const data = JSON.parse(await readFile(global.fileName));
+		let bests =[];
+		data.grades.forEach(grade => {
+			if (grade.subject === subject && grade.type === type)
+				bests.push(grade);
+		});
+		let orderedBests = bests.sort( (a, b) => {
+			return b.value - a.value;
+		})
+		//console.log(orderedBests);
+		res.send(orderedBests.slice(0, 3));
+		global.logger.info("GET /nota/bestgrades");
 	} catch (err) {
 		next(err);
 	}

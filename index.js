@@ -1,7 +1,6 @@
 import express from "express";
 import winston from "winston";
 import gradesRouter from "./routes/grades.js";
-import totalGradeRouter from "./routes/totalGrade.js";
 import { promises as fs } from "fs";
 import cors from "cors";
 //import swaggerUi from "swagger-ui-express";
@@ -34,7 +33,6 @@ app.use(cors());
 //app.use(express.static("public"));
 //app.use("/doc", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use("/grade", gradesRouter);
-app.use("/calculation", totalGradeRouter);
 
 app.listen(3000, async () => {
 	try {
